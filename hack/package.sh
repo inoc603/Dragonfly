@@ -16,6 +16,7 @@ BUILD_SOURCE_HOME=$(cd ".." && pwd)
 BUILD_PATH=bin/${GOOS}_${GOARCH}
 DFDAEMON_BINARY_NAME=dfdaemon
 DFGET_BINARY_NAME=dfget
+SUPERNODE_BINARY_NAME=supernode
 
 main() {
     cd "${BUILD_SOURCE_HOME}" || return
@@ -49,6 +50,7 @@ main() {
 
 # TODO: Add description
 DFCLIENT_DESCRIPTION="df-client"
+SUPERNODE_DESCRIPTION="df-supernode"
 # TODO: Add maintainer
 MAINTAINER="dragonflyoss"
 
@@ -60,7 +62,17 @@ build_rpm() {
         --before-remove ./hack/before-remove.sh \
         -n df-client -v "${VERSION}" \
 	"${BUILD_PATH}/${DFGET_BINARY_NAME}=${INSTALL_HOME}/${INSTALL_CLIENT_PATH}/${DFGET_BINARY_NAME}" \
-	"${BUILD_PATH}/${DFDAEMON_BINARY_NAME}=${INSTALL_HOME}/${INSTALL_CLIENT_PATH}/${DFDAEMON_BINARY_NAME}"
+	"${BUILD_PATH}/${DFDAEMON_BINARY_NAME}=${INSTALL_HOME}/${INSTALL_CLIENT_PATH}/${DFDAEMON_BINARY_NAME}" \
+        ./hack/dfdaemon.service=/lib/systemd/system/dfdaemon.service
+
+    ${FPM} -s dir -t rpm -f -p release --rpm-os=linux \
+        --description "${SUPERNODE_DESCRIPTION}" \
+        --maintainer "${MAINTAINER}" \
+        -d nginx \
+        -n df-supernode -v "${VERSION}" \
+	"${BUILD_PATH}/${SUPERNODE_BINARY_NAME}=${INSTALL_HOME}/${INSTALL_SUPERNODE_PATH}/${SUPERNODE_BINARY_NAME}" \
+	"hack/start-supernode.sh=${INSTALL_HOME}/${INSTALL_SUPERNODE_PATH}/start-supernode.sh" \
+        ./hack/dfsupernode.service=/lib/systemd/system/dfsupernode.service
 }
 
 build_deb() {
@@ -71,7 +83,17 @@ build_deb() {
         --before-remove ./hack/before-remove.sh \
         -n df-client -v "${VERSION}" \
 	"${BUILD_PATH}/${DFGET_BINARY_NAME}=${INSTALL_HOME}/${INSTALL_CLIENT_PATH}/${DFGET_BINARY_NAME}" \
-	"${BUILD_PATH}/${DFDAEMON_BINARY_NAME}=${INSTALL_HOME}/${INSTALL_CLIENT_PATH}/${DFDAEMON_BINARY_NAME}"
+	"${BUILD_PATH}/${DFDAEMON_BINARY_NAME}=${INSTALL_HOME}/${INSTALL_CLIENT_PATH}/${DFDAEMON_BINARY_NAME}" \
+        ./hack/dfdaemon.service=/lib/systemd/system/dfdaemon.service
+
+    ${FPM} -s dir -t deb -f -p release --rpm-os=linux \
+        --description "${SUPERNODE_DESCRIPTION}" \
+        --maintainer "${MAINTAINER}" \
+        -d nginx \
+        -n df-supernode -v "${VERSION}" \
+	"${BUILD_PATH}/${SUPERNODE_BINARY_NAME}=${INSTALL_HOME}/${INSTALL_SUPERNODE_PATH}/${SUPERNODE_BINARY_NAME}" \
+	"hack/start-supernode.sh=${INSTALL_HOME}/${INSTALL_SUPERNODE_PATH}/start-supernode.sh" \
+        ./hack/dfsupernode.service=/lib/systemd/system/dfsupernode.service
 }
 
 main "$@"

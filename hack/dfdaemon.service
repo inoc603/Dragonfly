@@ -1,0 +1,10 @@
+[Unit]
+Description=Dragonfly Daemon
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/dfdaemon
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

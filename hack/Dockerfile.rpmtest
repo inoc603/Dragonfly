@@ -1,0 +1,10 @@
+FROM centos/systemd
+
+RUN echo $'[nginx]\n\
+name=nginx repo\n\
+baseurl=http://nginx.org/packages/mainline/centos/7/$basearch/\n\
+gpgcheck=0\n\
+enabled=1\n'\
+> /etc/yum.repos.d/nginx.repo
+
+RUN yum check-update

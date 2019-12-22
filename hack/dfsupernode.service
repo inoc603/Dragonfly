@@ -1,0 +1,10 @@
+[Unit]
+Description=Dragonfly Supernode
+Wants=network-online.target
+
+[Service]
+ExecStart=/opt/dragonfly/start-supernode.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
